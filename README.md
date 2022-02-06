@@ -1,1 +1,1 @@
-This is my repo
+Ilgiz. QA experience 1 year 3 months. Familiar with Selenium, Requests lib and slightly Playwright. I'd like to get best practices in making autotests and CI.

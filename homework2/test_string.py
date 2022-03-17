@@ -22,8 +22,7 @@ def test_str_immute(prepared_str):
 @pytest.mark.parametrize('data', ('qwe!@#', 123, ['a', 'b'], {'q': 5}))
 def test_str_contains(data):
     a = str(data)
-    assert type(a) is str
-
+    assert isinstance(a, str)
 
 # 3) Содержание строки зависит от регистра
 

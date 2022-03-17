@@ -29,7 +29,6 @@ class TestUnique:
     @pytest.mark.parametrize('data_type', data_col)
     def test_unique_value(self, data_type):
         st = set(data_type)
-        print(st)
         assert len(st) == 2
 
 

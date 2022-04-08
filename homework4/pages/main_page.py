@@ -8,4 +8,4 @@ class MainPage(BasePage):
         self._click(By.CSS_SELECTOR, '[href="/campaign/new"]')
 
     def open_segments_page(self):
-        self._click(By.CSS_SELECTOR, '.center-module-button-14O4yB.center-module-segments-1MqckW')
+        self._click(By.CSS_SELECTOR, '[href="/segments"]')

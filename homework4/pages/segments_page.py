@@ -3,10 +3,12 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from homework4.pages.base_page import BasePage
 from datetime import datetime
+from uuid import uuid4
 
 
 time_title = datetime.now().strftime('%H.%M.%S-%d.%m.%Y')
-segment_name = "Auto segment name " + time_title
+randon_uuid_str = str(uuid4().hex)[0:6]
+segment_name = "Segment name " + time_title + '_' + randon_uuid_str
 
 
 class SegmentPage(BasePage):

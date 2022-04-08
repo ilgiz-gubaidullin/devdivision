@@ -2,9 +2,12 @@ import time
 from datetime import datetime
 from selenium.webdriver.common.by import By
 from homework4.pages.base_page import BasePage
+from uuid import uuid4
+
 
 time_title = datetime.now().strftime('%H.%M.%S-%d.%m.%Y')
-campaign_name = "Auto campaign name " + time_title
+randon_uuid_str = str(uuid4().hex)[0:6]
+campaign_name = "Campaign name " + time_title + '_' + randon_uuid_str
 
 
 class CampaignPage(BasePage):
@@ -21,15 +24,13 @@ class CampaignPage(BasePage):
         self._send_keys(By.CSS_SELECTOR, '[data-test="budget-total"]', "100")
 
         self._click(By.CSS_SELECTOR, '#patterns_banner_4')
-        time.sleep(3)
 
     def upload_file(self, upload_file_path):
-        self._send_keys_to_upload(By.CSS_SELECTOR, '.roles-module-uploadButton-ZO1MPT .button-module-textWrapper-22z69-', upload_file_path)
+        self._send_keys_to_upload(By.CSS_SELECTOR, '.roles-module-buttonWrap-2SwE2M> .upload-module-wrapper-LybVp_ > input', upload_file_path)
         time.sleep(3)
         self._click(By.CSS_SELECTOR, '.image-cropper__save.js-save')
         time.sleep(3)
         self._click(By.CSS_SELECTOR, '[cid="view553"]')
 
-
-
-
+    def check_campaign_created(self):
+        assert campaign_name == self._get_text(By.CSS_SELECTOR, f'[title="{campaign_name}"]')

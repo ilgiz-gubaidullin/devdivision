@@ -1,15 +1,16 @@
 import os
 import shutil
 import sys
-import time
 import allure
 import pytest
-from selenium.webdriver import Chrome
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from homework4.pages.login_page import LoginPage
 from homework4.pages.main_page import MainPage
-from selenium.webdriver import Chrome, ChromeOptions, Proxy, Remote
+from selenium.webdriver import Chrome, ChromeOptions, Remote
+from homework4.helpers.credentials import UserData
+from datetime import datetime
+from uuid import uuid4
 
 
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
@@ -24,35 +25,66 @@ def pytest_runtest_makereport(item, call):
     setattr(item, "rep_" + rep.when, rep)
 
 
+def pytest_addoption(parser):
+    parser.addoption('--selenoid', action='store_true')
+    parser.addoption('--vnc', action='store_true')
+
+
+@pytest.fixture(scope='session')
+def ui_config(request):
+    if request.config.getoption('--selenoid'):
+        selenoid = 'http://127.0.0.1:4444'
+        if request.config.getoption('--vnc'):
+            vnc = True
+        else:
+            vnc = False
+
+    else:
+        selenoid = None
+        vnc = False
+
+    return {'selenoid': selenoid, 'vnc': vnc}
+
+
 @pytest.fixture(scope='function')
-def browser(request, test_dir):
+def browser(request, test_dir, ui_config):
     """
     Открываем браузер и заходим на target.my.com
     """
 
-    capabilities = {
-        "browserName": "chrome",
-        "version": "89.0_vnc",
-        "enableVNC": True,
-        "pageLoadStrategy": "eager"
-        }
+    selenoid = ui_config['selenoid']
+    vnc = ui_config['vnc']
 
-    with allure.step("Открываем браузер"):
-        driver = Remote(
-            "http://127.0.0.1:4444/wd/hub",
-            options = ChromeOptions(),
-            desired_capabilities=capabilities)
+    if selenoid is not None:
+        capabilities = {
+            'browserName': 'chrome',
+            'version': '89.0',
+            "pageLoadStrategy": "eager"
+        }
+        if vnc:
+            capabilities['version'] += '_vnc'
+            capabilities['enableVNC'] = True
+
+        with allure.step("Открываем браузер"):
+            driver = Remote(
+                "http://127.0.0.1:4444/wd/hub",
+                options=ChromeOptions(),
+                desired_capabilities=capabilities)
+    else:
+        manager = ChromeDriverManager(log_level=0)
+        path = manager.install()
+
+        caps = DesiredCapabilities().CHROME
+        caps["pageLoadStrategy"] = "eager"
+
+        driver = Chrome(desired_capabilities=caps, executable_path=path)
 
     with allure.step("Заходим на target.my.com"):
         driver.maximize_window()
         driver.get('https://target.my.com/')
 
-    time.sleep(3)
-
     with allure.step("Увеличиваем окно"):
         driver.maximize_window()
-
-    # failed_tests = request.session.testfailed
 
     yield driver
 
@@ -80,16 +112,9 @@ def main_page_fixture(browser):
     Логинимся и открываем главную страницу
     """
     page = LoginPage(browser)
+    page.login(UserData.EMAIL, UserData.PASSWORD)
 
-    page.start_auth()
-    page.send_email('awesome.uniq@yandex.ru')
-    page.send_password('Default_password_1')
-    page.submit()
-
-    time.sleep(3)
-
-    page = MainPage(browser)
-    return page
+    return MainPage(browser)
 
 
 @pytest.fixture(scope='session')
@@ -122,3 +147,11 @@ def test_dir(request):
                             .replace(']', ''))
     os.makedirs(test_dir)
     return test_dir
+
+
+@pytest.fixture()
+def unique_value():
+    time_title = datetime.now().strftime('%H.%M.%S-%d.%m.%Y')
+    randon_uuid_str = str(uuid4().hex)[0:6]
+    return time_title + ':' + randon_uuid_str
+

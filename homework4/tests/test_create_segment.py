@@ -1,17 +1,13 @@
-import time
 import allure
-from homework4.pages.segments_page import SegmentPage
 
 
-def test_create_segment(browser, main_page_fixture):
+def test_create_segment(browser, main_page_fixture, unique_value):
     """
     Тест на создание сегмента
     """
     with allure.step("Открываем директорию сегментов"):
-        time.sleep(3)
-        main_page_fixture.open_segments_page()
-        page = SegmentPage(browser)
+        page = main_page_fixture.open_segments_page()
     with allure.step("Добавляем сегмент"):
-        page.add_segment()
+        page.add_segment(unique_value)
     with allure.step("Проверяем сегмент"):
-        page.check_segment_exist()
+        page.check_segment_exist(unique_value)

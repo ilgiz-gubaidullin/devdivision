@@ -1,16 +1,11 @@
 from selenium.webdriver.common.by import By
 from homework4.pages.base_page import BasePage
+from homework4.helpers.locators import LoginPageLocators
 
 
 class LoginPage(BasePage):
-    def start_auth(self):
-        self._click(By.CSS_SELECTOR, "div.responseHead-module-button-2yl51i")
-
-    def send_email(self, email):
-        self._send_keys(By.CSS_SELECTOR, "[name='email']", email)
-
-    def send_password(self, password):
-        self._send_keys(By.CSS_SELECTOR, "[name='password']", password)
-
-    def submit(self):
-        self._click(By.CSS_SELECTOR, "div.authForm-module-button-1u2DYF")
+    def login(self, email, password):
+        self._click(By.XPATH, LoginPageLocators.ENTER_BUTTON)
+        self._send_keys(By.CSS_SELECTOR, LoginPageLocators.EMAIL_INPUT, email)
+        self._send_keys(By.CSS_SELECTOR, LoginPageLocators.PASSWORD_INPUT, password)
+        self._click(By.CSS_SELECTOR, LoginPageLocators.SUBMIT)

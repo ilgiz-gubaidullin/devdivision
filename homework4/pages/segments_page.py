@@ -1,39 +1,32 @@
-import time
+import pytest
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from homework4.pages.base_page import BasePage
-from datetime import datetime
-from uuid import uuid4
-
-
-time_title = datetime.now().strftime('%H.%M.%S-%d.%m.%Y')
-randon_uuid_str = str(uuid4().hex)[0:6]
-segment_name = "Segment name " + time_title + '_' + randon_uuid_str
+from homework4.helpers.locators import SegmentsPageLocators
 
 
 class SegmentPage(BasePage):
-    def add_segment(self):
+    def add_segment(self, new_segment_name):
         try:
-            self._click(By.CSS_SELECTOR, '[href="/segments/segments_list/new/"]')
+            self._click(By.CSS_SELECTOR, SegmentsPageLocators.CREATE_LINK)
         except TimeoutException:
-            self._click(By.CSS_SELECTOR, '.button__text')
+            self._click(By.CSS_SELECTOR, SegmentsPageLocators.CREATE_SEGMENT_BUTTON)
 
-        time.sleep(2)
+        self._click(By.CSS_SELECTOR, SegmentsPageLocators.CHECKBOX_PLAYED)
+        self._click(By.CSS_SELECTOR, SegmentsPageLocators.ADD_SEGMENT_BUTTON)
+        self._send_keys(By.CSS_SELECTOR, SegmentsPageLocators.SEGMENT_NAME, new_segment_name)
+        self._click(By.CSS_SELECTOR, SegmentsPageLocators.CREATE_SUBMIT_BUTTON)
 
-        self._click(By.CSS_SELECTOR, '.adding-segments-source__checkbox ')
-        self._click(By.CSS_SELECTOR, '.adding-segments-modal__btn-wrap  > .button.button_submit  > .button__text')
-
-        self._send_keys(By.CSS_SELECTOR, '.input_create-segment-form .input__wrap > input.input__inp', segment_name)
-        self._click(By.CSS_SELECTOR, '.create-segment-form__btn-wrap  > .button > .button__text')
-
-    def check_segment_exist(self):
+    def check_segment_exist(self, segment_name):
         assert segment_name == self._get_text(By.CSS_SELECTOR, f'[title="{segment_name}"]')
 
-    def delete_segments(self):
-        self._click(By.CSS_SELECTOR, '.segmentsTable-module-idHeaderCellWrap-1M1sHd > .input-module-input-1Uxo5D')
-        self._click(By.CSS_SELECTOR, '.select-module-arrow-3cxrfd')
-        self._click(By.CSS_SELECTOR, '[title="Удалить"]')
+    def delete_segment(self, segment_name):
+        segment_link = self._get_attribute(By.XPATH, f"//*[text() = '{segment_name}']", "href")
+        segment_id = segment_link.split('/')[-1]
+        self._click(By.XPATH, f'//div[@data-test="remove-{segment_id} row-{segment_id}"]/span')
+        self._click(By.CSS_SELECTOR, SegmentsPageLocators.DELETE_SUBMIT_BUTTON)
 
-    def check_deletion(self):
-        attribute = self._get_attribute(By.CSS_SELECTOR, '.page_segments__instruction-wrap.js-instruction-wrap', 'style')
-        assert attribute == 'display: block;'
+    def check_deletion(self, segment_name):
+        with pytest.raises(TimeoutException):
+            self._find_elements(By.CSS_SELECTOR, f'[title="{segment_name}"]')
+            pytest.fail("Deleted test not found")

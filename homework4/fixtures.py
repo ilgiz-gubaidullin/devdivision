@@ -86,11 +86,18 @@ def browser(request, test_dir, ui_config, cookies):
 
 
 @pytest.fixture
-def main_page_fixture(browser):
+def main_page_fixture(browser, request, api_client):
     """
     Логинимся и открываем главную страницу
     """
-    page = LoginPage(browser)
-    page.login(UserData.EMAIL, UserData.PASSWORD)
 
+    cookies = request.getfixturevalue('cookies')
+    for cookie in cookies:
+        cookie_dict = {
+            'name': cookie.name,
+            'value': cookie.value,
+        }
+        browser.add_cookie(cookie_dict)
+
+    browser.refresh()
     return MainPage(browser)

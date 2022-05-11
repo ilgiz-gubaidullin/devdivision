@@ -18,11 +18,6 @@ def cookies(api_client):
 
 
 @pytest.fixture(scope='session')
-def headers(api_client):
-    return api_client.session.headers
-
-
-@pytest.fixture(scope='session')
 def api_client():
     client = ApiClient("https://target.my.com/")
     client.post_user_auth(UserData.EMAIL, UserData.PASSWORD)

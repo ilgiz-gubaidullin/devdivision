@@ -8,10 +8,10 @@ import names
 
 
 @pytest.mark.UI
-def test_edit_profile_info(browser):
+def test_edit_profile_info(browser_homework3):
     # Переход на страницу профиля
-    browser.get('https://target.my.com/profile/contacts')
-    wait = WebDriverWait(browser, 15)
+    browser_homework3.get('https://target.my.com/profile/contacts')
+    wait = WebDriverWait(browser_homework3, 15)
 
     # Редактируем ФИО
     fio_button = wait.until(
@@ -30,10 +30,10 @@ def test_edit_profile_info(browser):
     phone_button.send_keys(datetime.now().strftime('%H.%M.%S'))
 
     # Нажать сохранить
-    browser.find_element(By.CSS_SELECTOR, ".button.button_submit").click()
+    browser_homework3.find_element(By.CSS_SELECTOR, ".button.button_submit").click()
 
     # Проверяем, что появляется скрытое уведомление показываемое при успешном сохранении
-    assert browser.find_element(By.CSS_SELECTOR, '.button.button_submit.button_pending').is_displayed()
+    assert browser_homework3.find_element(By.CSS_SELECTOR, '.button.button_submit.button_pending').is_displayed()
 
 
 @pytest.mark.UI

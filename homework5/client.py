@@ -100,14 +100,14 @@ class ApiClient:
     @allure.step
     def get_segments_list(self):
         location = 'api/v2/remarketing/segments.json'
-        params = 'fields=relations__object_type,relations__object_id,relations__params,relations__params__score,relations__id,relations_count,id,name,pass_condition,created,campaign_ids,users,flags&limit=500&_=1651080429165'
+        params = 'id,name'
         return self._request('GET', location, params=params)
 
     @allure.step
     def create_segment(self, name_additional):
         location = 'api/v2/remarketing/segments.json'
         headers = {'X-CSRFToken': self.token}
-        params = 'fields=relations__object_type,relations__object_id,relations__params,relations__params__score,relations__id,relations_count,id,name,pass_condition,created,campaign_ids,users,flags'
+        params = 'id,name'
         data = {
                 "name": name_additional,
                 "pass_condition": 1,
@@ -151,3 +151,17 @@ class ApiClient:
         headers = {'X-CSRFToken': self.token}
         data = {"status": "deleted"}
         return self._request('POST', location, headers=headers, json_data=data, expect_status=204, jsontify=False)
+
+    @allure.step
+    def create_campaign(self, campaign_name, campaign_url, file_path, campaign_data):
+        url_id = self.submit_url_for_campaign(campaign_url)
+        image_id = self.send_image(file_path)
+        location = 'api/v2/campaigns.json'
+        headers = {'X-CSRFToken': self.token}
+        data = campaign_data
+        data["name"] = campaign_name
+        data["banners"][0]["urls"]["primary"]["id"] = url_id
+        data["banners"][0]["content"]["image_240x400"]["id"] = image_id
+
+        response = self._request('POST', location, headers=headers, json_data=data)
+        return response['id']

@@ -1,11 +1,4 @@
-import os
 import allure
-import pytest
-
-
-@pytest.fixture()
-def upload_file_path(repo_root):
-    return os.path.join(repo_root, "image_to_upload.jpg")
 
 
 def test_create_campaign(browser, main_page_fixture, upload_file_path, unique_value):

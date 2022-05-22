@@ -1,33 +1,12 @@
-import os
-import shutil
-import sys
-import allure
-import pytest
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from homework4.pages.login_page import LoginPage
 from homework4.pages.main_page import MainPage
 from selenium.webdriver import Chrome, ChromeOptions, Remote
 from homework4.helpers.credentials import UserData
-from datetime import datetime
-from uuid import uuid4
-
-
-@pytest.hookimpl(tryfirst=True, hookwrapper=True)
-def pytest_runtest_makereport(item, call):
-    # execute all other hooks to obtain the report object
-    outcome = yield
-    rep = outcome.get_result()
-
-    # set a report attribute for each phase of a call, which can
-    # be "setup", "call", "teardown"
-
-    setattr(item, "rep_" + rep.when, rep)
-
-
-def pytest_addoption(parser):
-    parser.addoption('--selenoid', action='store_true')
-    parser.addoption('--vnc', action='store_true')
+import allure
+import os
+import pytest
 
 
 @pytest.fixture(scope='session')
@@ -47,7 +26,7 @@ def ui_config(request):
 
 
 @pytest.fixture(scope='function')
-def browser(request, test_dir, ui_config):
+def browser(request, test_dir, ui_config, cookies):
     """
     Открываем браузер и заходим на target.my.com
     """
@@ -107,51 +86,18 @@ def browser(request, test_dir, ui_config):
 
 
 @pytest.fixture
-def main_page_fixture(browser):
+def main_page_fixture(browser, request, api_client):
     """
     Логинимся и открываем главную страницу
     """
-    page = LoginPage(browser)
-    page.login(UserData.EMAIL, UserData.PASSWORD)
 
+    cookies = request.getfixturevalue('cookies')
+    for cookie in cookies:
+        cookie_dict = {
+            'name': cookie.name,
+            'value': cookie.value,
+        }
+        browser.add_cookie(cookie_dict)
+
+    browser.refresh()
     return MainPage(browser)
-
-
-@pytest.fixture(scope='session')
-def repo_root():
-    return os.path.abspath(os.path.join(__file__, os.path.pardir))
-
-
-def pytest_configure(config):
-    if sys.platform.startswith('win'):
-        base_dir = 'C:\\tests'
-    else:
-        base_dir = '/tmp/tests'
-
-    if not hasattr(config, 'workerinput'):
-        if os.path.exists(base_dir):
-            shutil.rmtree(base_dir)
-        os.makedirs(base_dir)
-
-    config.base_dir = base_dir
-
-
-@pytest.fixture()
-def test_dir(request):
-    # test_name = os.environ['PYTEST_CURRENT_TEST']
-    test_name = request._pyfuncitem.nodeid
-    test_dir = os.path.join(request.config.base_dir, test_name.replace('/', '_')
-                            .replace(':', '_')
-                            .replace('-', '_')
-                            .replace('[', '_')
-                            .replace(']', ''))
-    os.makedirs(test_dir)
-    return test_dir
-
-
-@pytest.fixture()
-def unique_value():
-    time_title = datetime.now().strftime('%H.%M.%S-%d.%m.%Y')
-    randon_uuid_str = str(uuid4().hex)[0:6]
-    return time_title + ':' + randon_uuid_str
-

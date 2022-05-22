@@ -10,7 +10,7 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 
 @pytest.fixture(scope='function')
-def browser():
+def browser_homework3():
     manager = ChromeDriverManager()
     path = manager.install()
 

@@ -21,7 +21,7 @@ def get_vk_id(username):
 
 
 if __name__ == '__main__':
-    host = os.environ.get('VK_API_HOSTNAME', '127.0.0.1')
+    host = os.environ.get('VK_API_HOSTNAME', '0.0.0.0')
     port = os.environ.get('VK_API_PORT', '8005')
 
     app.run(host, port)

@@ -1,0 +1,30 @@
+services:
+    mysql_db:
+        environment:
+            MYSQL_ROOT_PASSWORD: Root123
+        image: "mysql_db"
+        healthcheck:
+            test: ["CMD", "mysqladmin", "-uroot", "Root123", "ping", "-h", "mysql_db"]
+            timeout: 1s
+            retries: 30
+        ports:
+            - "3307:3307"
+
+    vk_api:
+        image: "vk_api"
+        ports:
+            - "8005:8005"
+
+    my_app:
+        image: "myapp"
+        depends_on:
+            mysql_db:
+                condition: service_healthy
+            vk_api:
+                condition: service_started
+        ports:
+            - "8082:8082"
+        volumes:
+            - "./final_project/config:myapp/config"
+        command:
+            ["/app/myapp", "--config=myapp/config/app.config"]

@@ -59,7 +59,8 @@ cover/
 *.pot
 
 # Django stuff:
-*.log
+# Removed .log to add access.log fjle with homework7
+#*.log
 local_settings.py
 db.sqlite3
 db.sqlite3-journal

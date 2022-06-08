@@ -22,8 +22,10 @@ CREATE TABLE `test_users` (
     UNIQUE KEY `ix_test_users_username` (`username`)
 );
 
-CREATE USER 'test_qa'@'localhost' IDENTIFIED BY 'qa_test';
+USE vkeducation;
 
-GRANT ALL PRIVILEGES ON vkeducation.test_users TO 'test_qa'@'localhost';
+CREATE USER 'test_qa' IDENTIFIED BY 'qa_test';
+
+GRANT ALL PRIVILEGES ON vkeducation.test_users TO 'test_qa';
 
 FLUSH PRIVILEGES;

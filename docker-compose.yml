@@ -7,6 +7,8 @@ services:
             test: ["CMD", "mysqladmin", "-uroot", "-pRoot123", "ping", "-h", "mysql_db"]
             timeout: 1s
             retries: 5
+        ports:
+            - "3307:3306"
 
     vk_api:
         image: "vk_api"

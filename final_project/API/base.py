@@ -20,3 +20,4 @@ class BaseAPITest:
         self.data_manager = DataManager()
 
         self.logger.info('PREPARE DONE')
+

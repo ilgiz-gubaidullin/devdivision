@@ -75,7 +75,6 @@ class ApiClientFinal:
             validate(instance=response.json(), schema=check_schema)
 
         if check_content_json:
-            print(response.headers['Content-Type'])
             assert response.headers['Content-Type'] == 'application/json'
 
         if jsonify:
@@ -97,4 +96,4 @@ class ApiClientFinal:
 
     def add_user(self, data):
         location = 'api/user'
-        return self._request('POST', location, json_data=data, expect_status=201, jsonify=False)
+        return self._request('POST', location, json_data=data, check_status=False, expect_status=0, jsonify=False)

@@ -1,6 +1,4 @@
 import pytest
-import sqlalchemy
-
 from final_project.helpers.datamanager import DataManager
 from final_project.API.api_base import BaseAPITest
 from faker import Faker
@@ -20,21 +18,18 @@ class TestApi(BaseAPITest, MysqlBase):
 
 
     @pytest.mark.parametrize('user_middle_name', [
-        DataManager.user(middle_name=''),
-        DataManager.user(middle_name='Hose')])
+        DataManager.user(middle_name='', username='user____10'),
+        DataManager.user(middle_name='Hose', username='user____10')])
     def test_add_user(self, user_middle_name):
-        response = self.api_client_final.add_user(user_middle_name)
-
+        self.api_client_final.add_user(user_middle_name)
+        assert self.mysql.find_in_db_by_username('user____10'), 'Созданный пользователь не найден в БД'
 
     def test_add_user_status(self):
-        # user = self.data_manager.user()
-        # response = self.api_client_final.add_user(user)
-        # assert response.status_code == 201
-
-        table = self.mysql.test_users_table
-        # self.mysql.execute_query(self.mysql.test_users_table.where)
-        # query = table.select()
-        print(table.columns.keys())
+        username = random_str(15)
+        user = self.data_manager.user(username=username)
+        response = self.api_client_final.add_user(user)
+        assert response.status_code == 201, 'Статус код должен быть 201'
+        assert self.mysql.find_in_db_by_username(username), 'Созданный пользователь не найден в БД'
 
 
     @pytest.mark.parametrize('data_w_email', [

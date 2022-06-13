@@ -6,4 +6,4 @@ def random_str(N):
     """
     Для создания случайных строк определенной длины
     """
-    return ''.join(random.choice(string.ascii_letters) for _ in range(N))
+    return ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(N))

@@ -1,7 +1,7 @@
 import logging
 import allure
 import pytest
-from final_project.API.client import ApiClientFinal
+from final_project.API.api_client import ApiClientFinal
 from final_project.helpers.site_data import SiteData
 from final_project.helpers.datamanager import DataManager
 

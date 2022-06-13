@@ -97,3 +97,7 @@ class ApiClientFinal:
     def add_user(self, data):
         location = 'api/user'
         return self._request('POST', location, json_data=data, check_status=False, expect_status=0, jsonify=False)
+
+    def logout(self):
+        location = '/logout'
+        return self._request('GET', location, check_content_json=False, jsonify=False)

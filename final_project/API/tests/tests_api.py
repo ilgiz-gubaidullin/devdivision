@@ -18,18 +18,19 @@ class TestApi(BaseAPITest, MysqlBase):
 
 
     @pytest.mark.parametrize('user_middle_name', [
-        DataManager.user(middle_name='', username='user____10'),
-        DataManager.user(middle_name='Hose', username='user____10')])
+        DataManager.user(middle_name=''),
+        DataManager.user(middle_name='Hose')])
     def test_add_user(self, user_middle_name):
         self.api_client_final.add_user(user_middle_name)
-        assert self.mysql.find_in_db_by_username('user____10'), 'Созданный пользователь не найден в БД'
+        assert self.find_in_db_by_username(user_middle_name['username']), 'Созданный пользователь не найден в БД'
+
 
     def test_add_user_status(self):
         username = random_str(15)
         user = self.data_manager.user(username=username)
         response = self.api_client_final.add_user(user)
         assert response.status_code == 201, 'Статус код должен быть 201'
-        assert self.mysql.find_in_db_by_username(username), 'Созданный пользователь не найден в БД'
+        assert self.find_in_db_by_username(username), 'Созданный пользователь не найден в БД'
 
 
     @pytest.mark.parametrize('data_w_email', [

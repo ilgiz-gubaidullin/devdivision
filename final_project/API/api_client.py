@@ -101,3 +101,20 @@ class ApiClientFinal:
     def logout(self):
         location = '/logout'
         return self._request('GET', location, check_content_json=False, jsonify=False)
+
+    def delete_user(self, username):
+        location = f'/api/user/{username}'
+        return self._request('DELETE', location, check_content_json=False, jsonify=False, expect_status=204)
+
+    def change_user_password(self, username, password):
+        location = f'/api/user/{username}/change-password'
+        data = {"password": password}
+        return self._request('PUT', location, check_content_json=False, json_data=data)
+
+    def block_user(self, username):
+        location = f'/api/user/{username}/block'
+        return self._request('POST', location, check_content_json=False)
+
+    def unblock_user(self, username):
+        location = f"/api/user/{username}/accept"
+        return self._request('POST', location, check_content_json=False)

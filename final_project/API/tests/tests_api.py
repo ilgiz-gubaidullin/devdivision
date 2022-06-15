@@ -159,3 +159,19 @@ class TestApi(BaseAPITest, MysqlBase):
     def test_change_non_existing_user_password(self):
         response = self.api_client_final.change_user_password(random_str(15), 'new_password')
         assert response.status_code == 404, f'Сервер должен возвращать 404 ошибку, но сейчас вернул {response.status_code}'
+
+    def test_user_email_uniqueness(self):
+        user = self.data_manager.user()
+        self.api_client_final.add_user(user)
+        created_user_email = self.find_in_db_by_username(user['username'])[0].email
+        user = self.data_manager.user(email=created_user_email)
+        response = self.api_client_final.add_user(user)
+        assert response.status_code == 400, f'Сервер должен возвращать 400 ошибку, но сейчас вернул {response.status_code}'
+
+    def test_username_uniqueness(self):
+        user = self.data_manager.user()
+        self.api_client_final.add_user(user)
+        created_username = self.find_in_db_by_username(user['username'])[0].username
+        user = self.data_manager.user(username=created_username)
+        response = self.api_client_final.add_user(user)
+        assert response.status_code == 400, f'Сервер должен возвращать 400 ошибку, но сейчас вернул {response.status_code}'

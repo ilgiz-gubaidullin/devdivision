@@ -87,6 +87,7 @@ class ApiClientFinal:
             "http://127.0.0.1:8082/login",
             data={"username": username,"password": password},
             allow_redirects=False)
+        # assert response.status_code == 302, 'Неправильный статус запроса при авторизации в клиенте'
         return response
 
     def get_app_status(self):
@@ -104,17 +105,21 @@ class ApiClientFinal:
 
     def delete_user(self, username):
         location = f'/api/user/{username}'
-        return self._request('DELETE', location, check_content_json=False, jsonify=False, expect_status=204)
+        return self._request('DELETE', location, check_content_json=False, jsonify=False, check_status=False, expect_status=0)
 
     def change_user_password(self, username, password):
         location = f'/api/user/{username}/change-password'
         data = {"password": password}
-        return self._request('PUT', location, check_content_json=False, json_data=data)
+        return self._request('PUT', location, check_content_json=False, json_data=data, check_status=False, expect_status=0, jsonify=False)
 
     def block_user(self, username):
         location = f'/api/user/{username}/block'
-        return self._request('POST', location, check_content_json=False)
+        return self._request('POST', location, check_content_json=False, check_status=False, expect_status=0, jsonify=False)
 
     def unblock_user(self, username):
         location = f"/api/user/{username}/accept"
-        return self._request('POST', location, check_content_json=False)
+        return self._request('POST', location, check_content_json=False, check_status=False, expect_status=0, jsonify=False)
+
+    def reg_user(self, data):
+        location = 'reg'
+        return self._request('POST', location, json_data=data, check_status=False, expect_status=0, jsonify=False)

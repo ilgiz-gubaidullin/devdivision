@@ -22,7 +22,8 @@ CREATE TABLE `test_users` (
     UNIQUE KEY `ix_test_users_username` (`username`)
 );
 
-USE vkeducation;
+INSERT test_users(name, surname, username, password, email, access, active)
+VALUES ('Main', 'User', 'main_user', 'password', 'qwe@qwe.qwe', 1, 0);
 
 CREATE USER 'test_qa' IDENTIFIED BY 'qa_test';
 

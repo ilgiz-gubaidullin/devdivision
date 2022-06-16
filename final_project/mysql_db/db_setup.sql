@@ -25,6 +25,12 @@ CREATE TABLE `test_users` (
 INSERT test_users(name, surname, username, password, email, access, active)
 VALUES ('Main', 'User', 'main_user', 'password', 'qwe@qwe.qwe', 1, 0);
 
+INSERT test_users(name, surname, username, password, email, access, active)
+VALUES ('Blocked', 'User1', 'blocked_user1', 'blocked_user1', 'blocked_user1@qwe.qwe', 0, 0);
+
+INSERT test_users(name, surname, username, password, email, access, active)
+VALUES ('Blocked', 'User2', 'blocked_user2', 'blocked_user2', 'blocked_user2@qwe.qwe', 0, 0);
+
 CREATE USER 'test_qa' IDENTIFIED BY 'qa_test';
 
 GRANT ALL PRIVILEGES ON vkeducation.test_users TO 'test_qa';

@@ -28,6 +28,7 @@ class TestApi(BaseAPITest, MysqlBase):
         user = self.data_manager.user()
         response = self.api_client_final.add_user(user)
         assert self.find_in_db_by_username(user['username']), 'Созданный пользователь не найден в БД'
+        assert self.find_in_db_by_username(user['username'])[0].access == 1, "Значение access пользователя не равно 1"
         assert response.status_code == 201, 'Статус код должен быть 201'
 
     @pytest.mark.parametrize('data_w_email', [
@@ -134,15 +135,31 @@ class TestApi(BaseAPITest, MysqlBase):
         response = self.api_client_final.change_user_password(user['username'], 'existing_password')
         assert response.status_code == 400, f'Сервер должен возвращать 400 ошибку, но сейчас вернул {response.status_code}'
 
-    def test_block_and_unblock_user(self):
+    def test_block_user(self):
         user = self.data_manager.user()
         self.api_client_final.add_user(user)
+
+        login_test_client = ApiClientFinal(SiteData.url)
+        login_test_client.post_user_auth(username=user['username'], password=user['password'])
+        assert self.find_in_db_by_username(user['username'])[0].active == 1, "Значение active залогиненного пользователя не равно 1"
+        assert self.find_in_db_by_username(user['username'])[0].start_active_time is not None, "Значение start_active_time залогиненного пользователя пустое"
+
         response = self.api_client_final.block_user(user['username'])
         assert response.status_code == 200, f'Сервер должен возвращать 200 ошибку, но сейчас вернул {response.status_code}'
         assert self.find_in_db_by_username(user['username'])[0].access == 0, "Значение access заблокированного пользователя не равно 0"
-        response = self.api_client_final.unblock_user(user['username'])
+
+        response = login_test_client.add_user(self.data_manager.user())
+        assert response.status_code == 401, f'Сервер должен возвращать 401 ошибку, но сейчас вернул {response.status_code}'
+
+    def test_unblock_user(self):
+        response = self.api_client_final.unblock_user('blocked_user1')
         assert response.status_code == 200, f'Сервер должен возвращать 200 ошибку, но сейчас вернул {response.status_code}'
-        assert self.find_in_db_by_username(user['username'])[0].access == 1, "Значение access разблокированного пользователя не равно 1"
+        assert self.find_in_db_by_username('blocked_user1')[0].access == 1, "Значение access разблокированного пользователя не равно 1"
+
+    def test_login_as_blocked_user(self):
+        login_test_client = ApiClientFinal(SiteData.url)
+        response = login_test_client.post_user_auth(username='blocked_user2', password='blocked_user2')
+        assert response.status_code == 401, f'Сервер должен возвращать 401 ошибку, но сейчас вернул {response.status_code}'
 
     def test_delete_non_existing_user(self):
         response = self.api_client_final.delete_user(random_str(15))

@@ -27,6 +27,7 @@ class TestApi(BaseAPITest, MysqlBase):
     def test_add_user_request_status(self):
         user = self.data_manager.user()
         response = self.api_client_final.add_user(user)
+
         assert self.find_in_db_by_username(user['username']), 'Созданный пользователь не найден в БД'
         assert self.find_in_db_by_username(user['username'])[0].access == 1, "Значение access пользователя не равно 1"
         assert response.status_code == 201, 'Статус код должен быть 201'
@@ -155,6 +156,9 @@ class TestApi(BaseAPITest, MysqlBase):
         response = self.api_client_final.unblock_user('blocked_user1')
         assert response.status_code == 200, f'Сервер должен возвращать 200 ошибку, но сейчас вернул {response.status_code}'
         assert self.find_in_db_by_username('blocked_user1')[0].access == 1, "Значение access разблокированного пользователя не равно 1"
+
+        self.api_client_final.block_user('blocked_user1')
+        assert self.find_in_db_by_username('blocked_user1')[0].access == 0, "Значение access заблокированного пользователя не равно 0"
 
     def test_login_as_blocked_user(self):
         login_test_client = ApiClientFinal(SiteData.url)

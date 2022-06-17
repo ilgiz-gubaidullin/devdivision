@@ -120,6 +120,3 @@ class ApiClientFinal:
         location = f"/api/user/{username}/accept"
         return self._request('POST', location, check_content_json=False, check_status=False, expect_status=0, jsonify=False)
 
-    def reg_user(self, data):
-        location = 'reg'
-        return self._request('POST', location, json_data=data, check_status=False, expect_status=0, jsonify=False)

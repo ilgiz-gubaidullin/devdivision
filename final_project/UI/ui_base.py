@@ -15,11 +15,11 @@ class BaseUISuiteTest:
     ui_config: dict
 
     @pytest.fixture(autouse=True)
-    def prepare(self, browser, logger, ui_config, repo_root):
+    def prepare(self, browser_final, logger, ui_config_final, repo_root):
         self.repo_root = repo_root
-        self.browser = browser
+        self.browser = browser_final
         self.base_url: str = SiteData.url
         self.logger: logging.Logger = logger
-        self.ui_config: dict = ui_config
+        self.ui_config: dict = ui_config_final
 
         self.logger.info('PREPARE DONE')

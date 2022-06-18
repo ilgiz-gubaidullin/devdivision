@@ -1,8 +1,6 @@
-import pytest
 from final_project.helpers.site_data import SiteData
 from final_project.API.api_client import ApiClientFinal
 from final_project.mysql_db.db_client import MysqlORMClient
-from final_project.helpers.datamanager import DataManager
 from final_project.UI.pages.main_page import MainPage
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
@@ -33,12 +31,12 @@ def mysql_orm_client(request) -> MysqlORMClient:
 
 
 @pytest.fixture(scope='session')
-def cookies(api_client):
-    return api_client.session.cookies
+def cookies_final(api_client_final):
+    return api_client_final.session.cookies
 
 
 @pytest.fixture(scope='session')
-def ui_config(request):
+def ui_config_final(request):
     if request.config.getoption('--selenoid'):
         selenoid = 'http://127.0.0.1:4444'
         if request.config.getoption('--vnc'):
@@ -54,13 +52,13 @@ def ui_config(request):
 
 
 @pytest.fixture(scope='function')
-def browser(request, test_dir, ui_config, cookies):
+def browser_final(request, test_dir, ui_config_final, cookies_final):
     """
     Открываем браузер и заходим на target.my.com
     """
 
-    selenoid = ui_config['selenoid']
-    vnc = ui_config['vnc']
+    selenoid = ui_config_final['selenoid']
+    vnc = ui_config_final['vnc']
 
     if selenoid is not None:
         capabilities = {
@@ -86,12 +84,8 @@ def browser(request, test_dir, ui_config, cookies):
 
         driver = Chrome(desired_capabilities=caps, executable_path=path)
 
-    with allure.step("Заходим на target.my.com"):
-        driver.maximize_window()
-        driver.get('https://target.my.com/')
-
-    with allure.step("Увеличиваем окно"):
-        driver.maximize_window()
+    driver.get(SiteData.url)
+    driver.maximize_window()
 
     yield driver
 
@@ -114,19 +108,19 @@ def browser(request, test_dir, ui_config, cookies):
 
 
 @pytest.fixture
-def main_page_fixture(browser, request, api_client):
+def main_page_fixture_final(browser_final, request, api_client_final):
     """
     Логинимся и открываем главную страницу
     """
 
-    cookies = request.getfixturevalue('cookies')
+    cookies = request.getfixturevalue('cookies_final')
     for cookie in cookies:
         cookie_dict = {
             'name': cookie.name,
             'value': cookie.value,
         }
-        browser.add_cookie(cookie_dict)
+        browser_final.add_cookie(cookie_dict)
 
-    browser.refresh()
-    return MainPage(browser)
+    browser_final.refresh()
+    return MainPage(browser_final)
 

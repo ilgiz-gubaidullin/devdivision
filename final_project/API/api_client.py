@@ -87,7 +87,6 @@ class ApiClientFinal:
             "http://127.0.0.1:8082/login",
             data={"username": username,"password": password},
             allow_redirects=False)
-        # assert response.status_code == 302, 'Неправильный статус запроса при авторизации в клиенте'
         return response
 
     def get_app_status(self):
@@ -120,3 +119,7 @@ class ApiClientFinal:
         location = f"/api/user/{username}/accept"
         return self._request('POST', location, check_content_json=False, check_status=False, expect_status=0, jsonify=False)
 
+    def get_vk_id(self, username):
+        response = requests.get(
+            f"http://127.0.0.1:8005/vk_id/{username}")
+        return response

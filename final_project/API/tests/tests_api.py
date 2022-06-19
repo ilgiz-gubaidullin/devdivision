@@ -202,3 +202,15 @@ class TestApi(BaseAPITest, MysqlBase):
         response = login_test_client.post_user_auth(username=f" {SiteData.main_user} ", password=f" {SiteData.main_user_pass} ")
         assert response.status_code != 401, f'Сервер не должен возвращать 401 ошибку, но сейчас вернул'
         assert dict(response.cookies) is not None
+
+    def test_positive_get_vk_id(self):
+        response = self.api_client_final.get_vk_id(SiteData.main_user)
+        assert response.status_code == 200
+        assert response.json()['vk_id'] == 1234567890
+        assert response.headers['Content-Type'] == 'application/json'
+
+    def test_negative_get_vk_id(self):
+        response = self.api_client_final.get_vk_id(random_str(10))
+        assert response.status_code == 404
+        assert response.json() == {}
+        assert response.headers['Content-Type'] == 'application/json'

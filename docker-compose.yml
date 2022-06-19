@@ -12,6 +12,8 @@ services:
 
     vk_api:
         image: "vk_api"
+        ports:
+            - "8005:8005"
 
     my_app:
         image: "myapp"

@@ -2,14 +2,13 @@
 
 import os
 from flask import Flask, jsonify
-from final_project.helpers.site_data import SiteData
 
 app = Flask(__name__)
 
 
 @app.route('/vk_id/<username>', methods=['GET'])
 def get_vk_id(username):
-    if username == SiteData.main_user:
+    if username == "main_user":
         response = jsonify({'vk_id': 1234567890})
         response.status_code = 200
         response.headers["Content-Type"] = "application/json"

@@ -3,6 +3,7 @@ class SiteData:
     main_user = "main_user"
     main_user_pass = "password"
 
+
 class MainPageLinks:
     container_links = [
         "https://en.wikipedia.org/wiki/API",
@@ -12,5 +13,6 @@ class MainPageLinks:
         "https://en.wikipedia.org/wiki/History_of_Python",
         "https://flask.palletsprojects.com/en/1.1.x/#",
         "https://www.wireshark.org/news/",
-        "https://www.centos.org/download/"
+        "https://www.wireshark.org/#download",
+        "https://hackertarget.com/tcpdump-examples/"
     ]

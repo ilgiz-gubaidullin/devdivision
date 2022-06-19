@@ -196,3 +196,9 @@ class TestApi(BaseAPITest, MysqlBase):
         user = self.data_manager.user(username=created_username)
         response = self.api_client_final.add_user(user)
         assert response.status_code == 400, f'Сервер должен возвращать 400 ошибку, но сейчас вернул {response.status_code}'
+
+    def test_spaces_trim_login(self):
+        login_test_client = ApiClientFinal(SiteData.url)
+        response = login_test_client.post_user_auth(username=f" {SiteData.main_user} ", password=f" {SiteData.main_user_pass} ")
+        assert response.status_code != 401, f'Сервер не должен возвращать 401 ошибку, но сейчас вернул'
+        assert dict(response.cookies) is not None

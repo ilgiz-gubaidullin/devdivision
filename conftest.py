@@ -81,6 +81,8 @@ def test_dir(request):
                             .replace(':', '_')
                             .replace('-', '_')
                             .replace('[', '_')
+                            .replace('>', '_')
+                            .replace(' ', '_')
                             .replace(']', ''))
     os.makedirs(test_dir)
     return test_dir

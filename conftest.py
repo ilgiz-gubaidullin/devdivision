@@ -80,6 +80,7 @@ def test_dir(request):
     test_dir = os.path.join(request.config.base_dir, test_name.replace('/', '_')
                             .replace(':', '_')
                             .replace('-', '_')
+                            .replace('#', '_')
                             .replace('[', '_')
                             .replace('>', '_')
                             .replace(' ', '_')

@@ -1,10 +1,14 @@
 class LoginPageLocators:
+
     USERNAME_INPUT = "[name='username']"
     PASSWORD_INPUT = "[name='password']"
     SUBMIT = "[name='submit']"
 
+    CREATE_ACCOUNT = "[href='/reg']"
+
 
 class MainPageLocators:
+
     LOGGED_NAME = '#login-name li:first-child'
 
     WHAT_IS_API_ICON = "[src='/static/images/laptop.png']"
@@ -29,3 +33,18 @@ class MainPageLocators:
 
     TM_ICON = "header > nav > ul > a"
     HOME_ICON = "header > nav > ul > li:nth-child(2) > a"
+
+
+class RegPageLocators:
+
+    NAME = "#user_name"
+    SURNAME = "#user_surname"
+    MIDDLENAME = "#user_middle_name"
+    USERNAME = "#username"
+    EMAIL = "#email"
+    PASSWORD = "#password"
+    REPEAT_PASSWORD = "#confirm"
+    SDET_CHECKBOX = "#term"
+    SUBMIT = "#submit"
+
+    LOG_IN_LINK = "[href='/login']"

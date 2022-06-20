@@ -99,24 +99,24 @@ class ApiClientFinal:
         return self._request('POST', location, json_data=data, check_status=False, expect_status=0, jsonify=False)
 
     def logout(self):
-        location = '/logout'
+        location = 'logout'
         return self._request('GET', location, check_content_json=False, jsonify=False)
 
     def delete_user(self, username):
-        location = f'/api/user/{username}'
+        location = f'api/user/{username}'
         return self._request('DELETE', location, check_content_json=False, jsonify=False, check_status=False, expect_status=0)
 
     def change_user_password(self, username, password):
-        location = f'/api/user/{username}/change-password'
+        location = f'api/user/{username}/change-password'
         data = {"password": password}
         return self._request('PUT', location, check_content_json=False, json_data=data, check_status=False, expect_status=0, jsonify=False)
 
     def block_user(self, username):
-        location = f'/api/user/{username}/block'
+        location = f'api/user/{username}/block'
         return self._request('POST', location, check_content_json=False, check_status=False, expect_status=0, jsonify=False)
 
     def unblock_user(self, username):
-        location = f"/api/user/{username}/accept"
+        location = f"api/user/{username}/accept"
         return self._request('POST', location, check_content_json=False, check_status=False, expect_status=0, jsonify=False)
 
     def get_vk_id(self, username):

@@ -27,7 +27,6 @@ class TestApi(BaseAPITest, MysqlBase):
     def test_add_user_request_status(self):
         user = self.data_manager.user()
         response = self.api_client_final.add_user(user)
-
         assert self.find_in_db_by_username(user['username']), 'Созданный пользователь не найден в БД'
         assert self.find_in_db_by_username(user['username'])[0].access == 1, "Значение access пользователя не равно 1"
         assert response.status_code == 201, 'Статус код должен быть 201'

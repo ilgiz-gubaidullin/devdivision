@@ -13,3 +13,5 @@ class LoginPage(BasePage):
     def check_user_logged(self, username):
         assert f"Logged as {username}" == self._get_text(By.CSS_SELECTOR, MainPageLocators.LOGGED_NAME)
 
+    def open_reg_form(self):
+        self._click(By.CSS_SELECTOR, LoginPageLocators.CREATE_ACCOUNT)

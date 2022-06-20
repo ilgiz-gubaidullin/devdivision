@@ -2,12 +2,15 @@ import pytest
 from final_project.UI.ui_base import BaseUISuiteTest
 import allure
 from final_project.UI.pages.login_page import LoginPage
+from final_project.UI.pages.reg_page import RegPage
 from final_project.helpers.site_data import SiteData, MainPageLinks
 from final_project.helpers.locators import MainPageLocators
 from selenium.webdriver import ActionChains
+from final_project.helpers.datamanager import DataManager
+from final_project.mysql_db.db_base import MysqlBase
 
 
-class TestMainPageUI(BaseUISuiteTest):
+class TestMainPageUI(BaseUISuiteTest, MysqlBase):
 
     @pytest.mark.parametrize('username, password', (('wrong_username', 'wrong_pass'),
                                                     (SiteData.main_user, 'wrong_pass'),
@@ -18,7 +21,7 @@ class TestMainPageUI(BaseUISuiteTest):
             page = LoginPage(browser_final)
             page.login(username, password)
         with allure.step("Проверка логина пользователя"):
-            assert browser_final.current_url != f"{SiteData.url}/welcome", 'URL не должен меняться на успешный'
+            assert browser_final.current_url != f"{SiteData.url}welcome", 'URL не должен меняться на успешный'
 
     @pytest.mark.parametrize('username, password', ((SiteData.main_user, SiteData.main_user_pass),
                                                     (f"   {SiteData.main_user}   ", f"  {SiteData.main_user_pass}  ")))
@@ -69,3 +72,51 @@ class TestMainPageUI(BaseUISuiteTest):
         page = main_page_fixture_final
         page.open_main_page_link(icon_locator)
         assert browser_final.current_url == f"{SiteData.url}welcome/", 'URL не соответствует домашней странице'
+
+    def test_reg_form_open(self, browser_final):
+        page = LoginPage(browser_final)
+        page.open_reg_form()
+        assert browser_final.current_url == f"{SiteData.url}reg", 'URL не соответствует странице регистрации'
+
+    @pytest.mark.parametrize('user_middle_name', [
+        DataManager.user(middle_name=''),
+        DataManager.user(middle_name='Hose')])
+    def test_create_account(self, browser_final, user_middle_name, open_create_account_page):
+        page = RegPage(browser_final)
+        page.create_account(user_middle_name)
+        assert browser_final.current_url == f"{SiteData.url}welcome/", 'URL не соответствует домашней странице'
+        assert self.find_in_db_by_username(user_middle_name['username']), 'Созданный пользователь не найден в БД'
+        assert self.find_in_db_by_username(user_middle_name['username'])[0].access == 1, "Значение access пользователя не равно 1"
+
+    def test_create_acc_without_checkbox(self, browser_final, open_create_account_page):
+        page = RegPage(browser_final)
+        user = DataManager.user()
+        page.create_account(user, checkbox=False)
+        assert browser_final.current_url != f"{SiteData.url}welcome/", 'URL соответствует домашней странице'
+        assert not self.find_in_db_by_username(user['username']), 'Созданный пользователь найден в БД'
+
+    @pytest.mark.parametrize('user_data_w_email', [
+        DataManager.user(email=''),
+        DataManager.user(email='123'),
+        DataManager.user(email='123@'),
+        DataManager.user(email='123@123'),
+        DataManager.user(email='1.13'),
+        DataManager.user(email='123@123..io'),
+        DataManager.user(email='123@123.#'),
+        DataManager.user(email='@123')])
+    def test_create_acc_w_invalid_email(self, user_data_w_email, browser_final, open_create_account_page):
+        page = RegPage(browser_final)
+        page.create_account(user_data_w_email)
+        assert browser_final.current_url != f"{SiteData.url}welcome/", 'URL соответствует домашней странице'
+        assert not self.find_in_db_by_username(user_data_w_email['username']), 'Созданный пользователь найден в БД'
+
+    @pytest.mark.parametrize('user_data_w_empty_field', [
+        DataManager.user(name=''),
+        DataManager.user(surname=''),
+        DataManager.user(username=''),
+        DataManager.user(password='')])
+    def test_create_acc_w_empty_field(self, user_data_w_empty_field, browser_final, open_create_account_page):
+        page = RegPage(browser_final)
+        page.create_account(user_data_w_empty_field)
+        assert browser_final.current_url != f"{SiteData.url}welcome/", 'URL соответствует домашней странице'
+        assert not self.find_in_db_by_username(user_data_w_empty_field['username']), 'Созданный пользователь найден в БД'

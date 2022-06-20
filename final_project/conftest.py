@@ -124,3 +124,7 @@ def main_page_fixture_final(browser_final, request, api_client_final):
     browser_final.refresh()
     return MainPage(browser_final)
 
+
+@pytest.fixture(scope='function')
+def open_create_account_page(browser_final):
+    browser_final.get(f"{SiteData.url}reg")

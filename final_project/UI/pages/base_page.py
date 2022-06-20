@@ -3,12 +3,14 @@ from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from typing import List
+from final_project.helpers.datamanager import DataManager
 
 
 class BasePage:
 
     def __init__(self, driver):
         self.driver = driver
+        self.data_manager = DataManager()
         self.wait = WebDriverWait(self.driver, 15,
                                   ignored_exceptions=StaleElementReferenceException)
 

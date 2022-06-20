@@ -213,3 +213,14 @@ class TestApi(BaseAPITest, MysqlBase):
         assert response.status_code == 404
         assert response.json() == {}
         assert response.headers['Content-Type'] == 'application/json'
+
+    @pytest.mark.parametrize('space_field', [
+        DataManager.user(name=f"   {random_str(10)}"),
+        DataManager.user(surname=f"   {random_str(10)}"),
+        DataManager.user(middle_name=f"   {random_str(10)}"),
+        DataManager.user(username=f"   {random_str(10)}"),
+        DataManager.user(email=f"  1@1.{random_str(1)}"),
+        DataManager.user(password=f"   {random_str(10)}")])
+    def test_add_user_w_space_at_field(self, space_field):
+        response = self.api_client_final.add_user(space_field)
+        assert response.status_code == 400, f'Сервер должен возвращать 400 ошибку, но сейчас вернул {response.status_code}'

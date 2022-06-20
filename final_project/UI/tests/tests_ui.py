@@ -8,6 +8,7 @@ from final_project.helpers.locators import MainPageLocators
 from selenium.webdriver import ActionChains
 from final_project.helpers.datamanager import DataManager
 from final_project.mysql_db.db_base import MysqlBase
+from final_project.helpers.utility_functions import random_str
 
 
 class TestMainPageUI(BaseUISuiteTest, MysqlBase):
@@ -120,3 +121,51 @@ class TestMainPageUI(BaseUISuiteTest, MysqlBase):
         page.create_account(user_data_w_empty_field)
         assert browser_final.current_url != f"{SiteData.url}welcome/", 'URL соответствует домашней странице'
         assert not self.find_in_db_by_username(user_data_w_empty_field['username']), 'Созданный пользователь найден в БД'
+
+    @pytest.mark.parametrize('user_data_w_exceeded_field', [
+        DataManager.user(name=random_str(256)),
+        DataManager.user(surname=random_str(256)),
+        DataManager.user(middle_name=random_str(256)),
+        DataManager.user(username=random_str(17)),
+        DataManager.user(email=f"123@{random_str(65)}"),
+        DataManager.user(password=random_str(256))])
+    def test_create_acc_w_exceeded_field(self, user_data_w_exceeded_field, browser_final, open_create_account_page):
+        page = RegPage(browser_final)
+        page.create_account(user_data_w_exceeded_field)
+        assert browser_final.current_url != f"{SiteData.url}welcome/", 'URL соответствует домашней странице'
+        assert not self.find_in_db_by_username(user_data_w_exceeded_field['username']), 'Созданный пользователь найден в БД'
+
+    @pytest.mark.parametrize('user_data_w_min_symbol_field', [
+        DataManager.user(name=random_str(1)),
+        DataManager.user(surname=random_str(1)),
+        DataManager.user(middle_name=random_str(1)),
+        DataManager.user(username=random_str(6)),
+        DataManager.user(email=f"{random_str(1)}@{random_str(1)}.qw"),
+        DataManager.user(password=random_str(1))])
+    def test_create_acc_w_min_symbol_field(self, user_data_w_min_symbol_field, browser_final, open_create_account_page):
+        page = RegPage(browser_final)
+        page.create_account(user_data_w_min_symbol_field)
+        assert browser_final.current_url == f"{SiteData.url}welcome/", 'URL не соответствует домашней странице'
+        assert self.find_in_db_by_username(user_data_w_min_symbol_field['username']), 'Созданный пользователь не найден в БД'
+
+    @pytest.mark.parametrize('user_data_w_space_in_field', [
+        DataManager.user(name=f"   {random_str(10)}"),
+        DataManager.user(surname=f"   {random_str(10)}"),
+        DataManager.user(middle_name=f"   {random_str(10)}"),
+        DataManager.user(username=f"   {random_str(10)}"),
+        DataManager.user(email=f"  {random_str(10)}@1.qw"),
+        DataManager.user(password=f"   {random_str(10)}")])
+    def test_create_acc_w_space_in_field(self, user_data_w_space_in_field, browser_final, open_create_account_page):
+        page = RegPage(browser_final)
+        page.create_account(user_data_w_space_in_field)
+        assert browser_final.current_url == f"{SiteData.url}welcome/", 'URL не соответствует домашней странице'
+        assert self.find_in_db_by_username(user_data_w_space_in_field['username']), 'Созданный пользователь не найден в БД'
+
+    @pytest.mark.parametrize('user_data', [
+        DataManager.user(username='main_user'),
+        DataManager.user(email='qwe@qwe.qwe')])
+    def test_create_acc_email_uniqueness(self, user_data, browser_final, open_create_account_page):
+        page = RegPage(browser_final)
+        page.create_account(user_data)
+        assert browser_final.current_url != f"{SiteData.url}welcome/", 'URL соответствует домашней странице'
+

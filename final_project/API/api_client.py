@@ -7,6 +7,7 @@ import json
 import logging
 from json import JSONDecodeError
 from faker import Faker
+from final_project.helpers.site_data import SiteData
 
 
 fake = Faker()

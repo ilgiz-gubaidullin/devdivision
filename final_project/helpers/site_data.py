@@ -1,5 +1,6 @@
 class SiteData:
     url = "http://127.0.0.1:8082/"
+    # url = "http://my-cool-app/"
     main_user = "main_user"
     main_user_pass = "password"
 

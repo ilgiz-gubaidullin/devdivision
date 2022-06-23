@@ -6,7 +6,7 @@ from sqlalchemy.orm import sessionmaker
 
 class MysqlORMClient:
 
-    def __init__(self, user, password, db_name, host='localhost', port=3307):
+    def __init__(self, user, password, db_name, host='mysql_db', port=3306):
         self.user = user
         self.password = password
         self.db_name = db_name

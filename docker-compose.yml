@@ -1,5 +1,13 @@
+networks:
+  selenoid:
+    external:
+        name: selenoid
+
 services:
     mysql_db:
+        container_name: mysql_db
+        networks:
+            selenoid: null
         environment:
             MYSQL_ROOT_PASSWORD: Root123
         image: "mysql_db"
@@ -11,11 +19,16 @@ services:
             - "3307:3306"
 
     vk_api:
+        networks:
+            selenoid: null
         image: "vk_api"
         ports:
             - "8005:8005"
 
     my_app:
+        container_name: my-cool-app
+        networks:
+            selenoid: null
         image: "myapp"
         depends_on:
             mysql_db:
@@ -30,3 +43,26 @@ services:
             - "./final_project/config:/myapp/config"
         command:
             ["/app/myapp", "--config=/myapp/config/app.config"]
+
+#    selenoid:
+#        networks:
+#            selenoid: null
+#        image: aerokube/selenoid:1.10.7
+#        volumes:
+#            - "./final_project/config_selenoid:/etc/selenoid"
+#            - "/var/run/docker.sock:/var/run/docker.sock"
+#        command: ["-conf", "/etc/selenoid/browsers.json", "-video-output-dir", "/opt/selenoid/video", "-log-output-dir", "/opt/selenoid/logs", "-container-network", "selenoid" ]
+#        healthcheck:
+#            test: [ "CMD", "curl", "http://my-cool-app:4444/ping" ]
+
+    tests:
+        networks:
+            selenoid: null
+        build: .
+        volumes:
+            - ./:/main
+#        command: ["python", "-m", "pytest", "/main/final_project/UI/tests/tests_ui.py", "-k=test_footer_str_present", "--selenoid"]
+        command: ["python", "-m", "pytest", "/main/final_project/API/tests/tests_api.py", "-k=test_add_user"]
+        depends_on:
+            - mysql_db
+            - my_app

@@ -38,7 +38,7 @@ def cookies_final(api_client_final):
 @pytest.fixture(scope='session')
 def ui_config_final(request):
     if request.config.getoption('--selenoid'):
-        selenoid = 'http://127.0.0.1:4444'
+        selenoid = 'http://my-cool-app:4444'
         if request.config.getoption('--vnc'):
             vnc = True
         else:
@@ -53,9 +53,6 @@ def ui_config_final(request):
 
 @pytest.fixture(scope='function')
 def browser_final(request, test_dir, ui_config_final, cookies_final):
-    """
-    Открываем браузер и заходим на target.my.com
-    """
 
     selenoid = ui_config_final['selenoid']
     vnc = ui_config_final['vnc']
@@ -64,7 +61,8 @@ def browser_final(request, test_dir, ui_config_final, cookies_final):
         capabilities = {
             'browserName': 'chrome',
             'version': '89.0',
-            "pageLoadStrategy": "eager"
+            'additionalNetworks': ['selenoid'],
+            'applicationContainers': ['my-cool-app']
         }
         if vnc:
             capabilities['version'] += '_vnc'
@@ -72,7 +70,7 @@ def browser_final(request, test_dir, ui_config_final, cookies_final):
 
         with allure.step("Открываем браузер"):
             driver = Remote(
-                "http://127.0.0.1:4444/wd/hub",
+                "http://my-cool-app:4444/wd/hub",
                 options=ChromeOptions(),
                 desired_capabilities=capabilities)
     else:

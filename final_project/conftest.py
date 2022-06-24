@@ -2,6 +2,7 @@ from final_project.helpers.site_data import SiteData
 from final_project.API.api_client import ApiClientFinal
 from final_project.mysql_db.db_client import MysqlORMClient
 from final_project.UI.pages.main_page import MainPage
+from final_project.helpers.datamanager import DataManager
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver import Chrome, ChromeOptions, Remote
@@ -38,7 +39,7 @@ def cookies_final(api_client_final):
 @pytest.fixture(scope='session')
 def ui_config_final(request):
     if request.config.getoption('--selenoid'):
-        selenoid = 'http://my-cool-app:4444'
+        selenoid = 'http://selenoid_container:4444/'
         if request.config.getoption('--vnc'):
             vnc = True
         else:
@@ -61,7 +62,7 @@ def browser_final(request, test_dir, ui_config_final, cookies_final):
         capabilities = {
             'browserName': 'chrome',
             'version': '89.0',
-            'additionalNetworks': ['selenoid'],
+            # 'additionalNetworks': ['selenoid'],
             'applicationContainers': ['my-cool-app']
         }
         if vnc:
@@ -70,7 +71,7 @@ def browser_final(request, test_dir, ui_config_final, cookies_final):
 
         with allure.step("Открываем браузер"):
             driver = Remote(
-                "http://my-cool-app:4444/wd/hub",
+                "http://selenoid_container:4444/wd/hub",
                 options=ChromeOptions(),
                 desired_capabilities=capabilities)
     else:
@@ -126,3 +127,4 @@ def main_page_fixture_final(browser_final, request, api_client_final):
 @pytest.fixture(scope='function')
 def open_create_account_page(browser_final):
     browser_final.get(f"{SiteData.url}reg")
+

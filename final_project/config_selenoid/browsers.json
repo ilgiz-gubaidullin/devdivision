@@ -13,19 +13,5 @@
                 "env": ["LANG=ru_RU.UTF-8", "LANGUAGE=ru:en", "LC_ALL=ru_RU.UTF-8"]
             }
         }
-    },
-    "firefox": {
-        "default": "98.0",
-        "versions": {
-            "97.0": {
-                "image": "selenoid/firefox:97.0",
-                "port": "4444",
-                "path": "/wd/hub"
-            },
-            "98.0": {
-                "image": "selenoid/firefox:98.0",
-                "port": "4444",
-                "path": "/wd/hub"
-            }
-        }
-    }}
+    }
+    }

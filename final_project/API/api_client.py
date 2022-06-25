@@ -83,45 +83,53 @@ class ApiClientFinal:
 
         return response
 
+    @allure.step
     def post_user_auth(self, username, password):
         response = self.session.post(
-            # "http://127.0.0.1:8082/login",
             f"{SiteData.url}login",
             data={"username": username,"password": password},
             allow_redirects=False)
         return response
 
+    @allure.step
     def get_app_status(self):
         location = 'status'
         response = self._request("GET", location)
         return response
 
+    @allure.step
     def add_user(self, data):
         location = 'api/user'
         return self._request('POST', location, json_data=data, check_status=False, expect_status=0, jsonify=False)
 
+    @allure.step
     def logout(self):
         location = 'logout'
         return self._request('GET', location, check_content_json=False, jsonify=False)
 
+    @allure.step
     def delete_user(self, username):
         location = f'api/user/{username}'
         return self._request('DELETE', location, check_content_json=False, jsonify=False, check_status=False, expect_status=0)
 
+    @allure.step
     def change_user_password(self, username, password):
         location = f'api/user/{username}/change-password'
         data = {"password": password}
         return self._request('PUT', location, check_content_json=False, json_data=data, check_status=False, expect_status=0, jsonify=False)
 
+    @allure.step
     def block_user(self, username):
         location = f'api/user/{username}/block'
         return self._request('POST', location, check_content_json=False, check_status=False, expect_status=0, jsonify=False)
 
+    @allure.step
     def unblock_user(self, username):
         location = f"api/user/{username}/accept"
         return self._request('POST', location, check_content_json=False, check_status=False, expect_status=0, jsonify=False)
 
+    @allure.step
     def get_vk_id(self, username):
         response = requests.get(
-            f"http://127.0.0.1:8005/vk_id/{username}")
+            f"{SiteData.url}vk_id/{username}")
         return response

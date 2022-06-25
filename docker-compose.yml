@@ -5,7 +5,7 @@ networks:
 
 services:
     mysql_db:
-        container_name: mysql_db
+        container_name: mysql_db_container
         networks:
             selenoid: null
         environment:
@@ -64,8 +64,7 @@ services:
         build: .
         volumes:
             - ./:/main
-        command: ["python", "-m", "pytest", "/main/final_project/UI/tests/tests_ui.py", "-k=test_footer_str_present", "--selenoid"]
-#        command: ["python", "-m", "pytest", "/main/final_project/API/tests/tests_api.py", "-k=test_add_user"]
+        command: ["python", "-m", "pytest", "/main/final_project/UI/tests/tests_ui.py", "-m", "debug", "--selenoid", "--alluredir=test_allure"]
         depends_on:
             - mysql_db
             - my_app

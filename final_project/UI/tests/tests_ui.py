@@ -13,6 +13,7 @@ from final_project.helpers.utility_functions import random_str
 
 class TestMainPageUI(BaseUISuiteTest, MysqlBase):
 
+    @pytest.mark.UI_FINAL
     @pytest.mark.parametrize('username, password', (('wrong_username', 'wrong_pass'),
                                                     (SiteData.main_user, 'wrong_pass'),
                                                     ('wrong_username', SiteData.main_user_pass),
@@ -24,6 +25,7 @@ class TestMainPageUI(BaseUISuiteTest, MysqlBase):
         with allure.step("Проверка логина пользователя"):
             assert browser_final.current_url != f"{SiteData.url}welcome", 'URL не должен меняться на успешный'
 
+    @pytest.mark.debug
     @pytest.mark.parametrize('username, password', ((SiteData.main_user, SiteData.main_user_pass),
                                                     (f"   {SiteData.main_user}   ", f"  {SiteData.main_user_pass}  ")))
     def test_login_success(self, browser_final, username, password):
@@ -34,6 +36,7 @@ class TestMainPageUI(BaseUISuiteTest, MysqlBase):
             assert browser_final.current_url == f"{SiteData.url}welcome/", 'URL должен меняться на успешный'
             page.check_user_logged(username)
 
+    @pytest.mark.UI_FINAL
     @pytest.mark.parametrize('link_locator', [MainPageLocators.WHAT_IS_API_ICON,
                                               MainPageLocators.INTERNET_FUTURE_ICON,
                                               MainPageLocators.SMTP_ICON])
@@ -43,6 +46,7 @@ class TestMainPageUI(BaseUISuiteTest, MysqlBase):
         browser_final.switch_to.window(browser_final.window_handles[1])
         assert browser_final.current_url in MainPageLinks.container_links
 
+    @pytest.mark.UI_FINAL
     @pytest.mark.parametrize('hover_element, link_locator', ((MainPageLocators.PYTHON_HOVER, MainPageLocators.PYTHON_HISTORY),
                                                              (MainPageLocators.PYTHON_HOVER, MainPageLocators.ABOUT_FLASK),
                                                              (MainPageLocators.LINUX_HOVER, MainPageLocators.DOWNLOAD_CENTOS),
@@ -58,15 +62,18 @@ class TestMainPageUI(BaseUISuiteTest, MysqlBase):
         browser_final.switch_to.window(browser_final.window_handles[1])
         assert browser_final.current_url in MainPageLinks.header_links
 
+    @pytest.mark.UI_FINAL
     def test_footer_str_present(self, browser_final, main_page_fixture_final):
         page = main_page_fixture_final
         page.check_footer_str_present()
 
+    @pytest.mark.UI_FINAL
     def test_logout(self, browser_final, main_page_fixture_final):
         page = main_page_fixture_final
         page.make_logout()
         assert browser_final.current_url == f"{SiteData.url}login", 'URL не соответствует странице логина'
 
+    @pytest.mark.UI_FINAL
     @pytest.mark.parametrize('icon_locator', [MainPageLocators.TM_ICON,
                                               MainPageLocators.HOME_ICON])
     def test_home_page_icons(self, browser_final, main_page_fixture_final, icon_locator):
@@ -74,11 +81,13 @@ class TestMainPageUI(BaseUISuiteTest, MysqlBase):
         page.open_main_page_link(icon_locator)
         assert browser_final.current_url == f"{SiteData.url}welcome/", 'URL не соответствует домашней странице'
 
+    @pytest.mark.UI_FINAL
     def test_reg_form_open(self, browser_final):
         page = LoginPage(browser_final)
         page.open_reg_form()
         assert browser_final.current_url == f"{SiteData.url}reg", 'URL не соответствует странице регистрации'
 
+    @pytest.mark.UI_FINAL
     @pytest.mark.parametrize('user_middle_name', [
         DataManager.user(middle_name=''),
         DataManager.user(middle_name='Hose')])
@@ -89,6 +98,7 @@ class TestMainPageUI(BaseUISuiteTest, MysqlBase):
         assert self.find_in_db_by_username(user_middle_name['username']), 'Созданный пользователь не найден в БД'
         assert self.find_in_db_by_username(user_middle_name['username'])[0].access == 1, "Значение access пользователя не равно 1"
 
+    @pytest.mark.UI_FINAL
     def test_create_acc_without_checkbox(self, browser_final, open_create_account_page):
         page = RegPage(browser_final)
         user = DataManager.user()
@@ -96,6 +106,7 @@ class TestMainPageUI(BaseUISuiteTest, MysqlBase):
         assert browser_final.current_url != f"{SiteData.url}welcome/", 'URL соответствует домашней странице'
         assert not self.find_in_db_by_username(user['username']), 'Созданный пользователь найден в БД'
 
+    @pytest.mark.UI_FINAL
     @pytest.mark.parametrize('user_data_w_email', [
         DataManager.user(email=''),
         DataManager.user(email='123'),
@@ -111,6 +122,7 @@ class TestMainPageUI(BaseUISuiteTest, MysqlBase):
         assert browser_final.current_url != f"{SiteData.url}welcome/", 'URL соответствует домашней странице'
         assert not self.find_in_db_by_username(user_data_w_email['username']), 'Созданный пользователь найден в БД'
 
+    @pytest.mark.UI_FINAL
     @pytest.mark.parametrize('user_data_w_empty_field', [
         DataManager.user(name=''),
         DataManager.user(surname=''),
@@ -122,6 +134,7 @@ class TestMainPageUI(BaseUISuiteTest, MysqlBase):
         assert browser_final.current_url != f"{SiteData.url}welcome/", 'URL соответствует домашней странице'
         assert not self.find_in_db_by_username(user_data_w_empty_field['username']), 'Созданный пользователь найден в БД'
 
+    @pytest.mark.UI_FINAL
     @pytest.mark.parametrize('user_data_w_exceeded_field', [
         DataManager.user(name=random_str(256)),
         DataManager.user(surname=random_str(256)),
@@ -135,6 +148,7 @@ class TestMainPageUI(BaseUISuiteTest, MysqlBase):
         assert browser_final.current_url != f"{SiteData.url}welcome/", 'URL соответствует домашней странице'
         assert not self.find_in_db_by_username(user_data_w_exceeded_field['username']), 'Созданный пользователь найден в БД'
 
+    @pytest.mark.UI_FINAL
     @pytest.mark.parametrize('user_data_w_min_symbol_field', [
         DataManager.user(name=random_str(1)),
         DataManager.user(surname=random_str(1)),
@@ -148,6 +162,7 @@ class TestMainPageUI(BaseUISuiteTest, MysqlBase):
         assert browser_final.current_url == f"{SiteData.url}welcome/", 'URL не соответствует домашней странице'
         assert self.find_in_db_by_username(user_data_w_min_symbol_field['username']), 'Созданный пользователь не найден в БД'
 
+    @pytest.mark.UI_FINAL
     @pytest.mark.parametrize('user_data_w_space_in_field', [
         DataManager.user(name=f"   {random_str(10)}"),
         DataManager.user(surname=f"   {random_str(10)}"),
@@ -161,6 +176,7 @@ class TestMainPageUI(BaseUISuiteTest, MysqlBase):
         assert browser_final.current_url == f"{SiteData.url}welcome/", 'URL не соответствует домашней странице'
         assert self.find_in_db_by_username(user_data_w_space_in_field['username']), 'Созданный пользователь не найден в БД'
 
+    @pytest.mark.UI_FINAL
     @pytest.mark.parametrize('user_data', [
         DataManager.user(username='main_user'),
         DataManager.user(email='qwe@qwe.qwe')])

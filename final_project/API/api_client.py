@@ -131,5 +131,5 @@ class ApiClientFinal:
     @allure.step
     def get_vk_id(self, username):
         response = requests.get(
-            f"{SiteData.url}vk_id/{username}")
+            f"{SiteData.vk_url}vk_id/{username}")
         return response

@@ -5,6 +5,8 @@ networks:
 
 services:
     mysql_db:
+        build:
+            context: ./final_project/mysql_db/Dockerfile.mysql_db
         container_name: mysql_db_container
         networks:
             selenoid: null
@@ -19,6 +21,8 @@ services:
             - "3307:3306"
 
     vk_api:
+        build:
+            context: ./final_project/mock/Dockerfile.mock
         networks:
             selenoid: null
         image: "vk_api"
@@ -64,7 +68,8 @@ services:
         build: .
         volumes:
             - ./:/main
-        command: ["python", "-m", "pytest", "/main/final_project/UI/tests/tests_ui.py", "-m", "debug", "--selenoid", "--alluredir=test_allure"]
+        command: ["python", "-m", "pytest", "/main/final_project/API/tests/tests_api.py", "-m", "API_FINAL"]
+#        command: ["python", "-m", "pytest", "/main/final_project/UI/tests/tests_ui.py", "-m", "UI_FINAL", "--selenoid"]
         depends_on:
             - mysql_db
             - my_app

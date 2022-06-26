@@ -1,13 +1,11 @@
-import time
-
+from final_project.helpers.site_data import SiteData
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker
 
 
 class MysqlORMClient:
 
-    # def __init__(self, user, password, db_name, host='localhost', port=3307):
-    def __init__(self, user, password, db_name, host='mysql_db_container', port=3306):
+    def __init__(self, user, password, db_name, host=SiteData.db_host, port=SiteData.port):
         self.user = user
         self.password = password
         self.db_name = db_name

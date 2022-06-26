@@ -18,6 +18,16 @@ def api_client_final():
     return client
 
 
+@pytest.fixture(scope='function')
+def add_user_return_request(api_client_final):
+    """
+    Создание пользователя и возвращение запроса
+    """
+    user = DataManager.user()
+    response = api_client_final.add_user(user)
+    return user, response
+
+
 def pytest_configure(config):
     mysql_orm_client = MysqlORMClient(user='test_qa', password='qa_test', db_name='vkeducation')
     mysql_orm_client.connect()
@@ -40,10 +50,7 @@ def cookies_final(api_client_final):
 def ui_config_final(request):
     if request.config.getoption('--selenoid'):
         selenoid = 'http://selenoid_container:4444/'
-        if request.config.getoption('--vnc'):
-            vnc = True
-        else:
-            vnc = False
+        vnc = False
 
     else:
         selenoid = None
@@ -56,18 +63,13 @@ def ui_config_final(request):
 def browser_final(request, test_dir, ui_config_final, cookies_final):
 
     selenoid = ui_config_final['selenoid']
-    vnc = ui_config_final['vnc']
 
     if selenoid is not None:
         capabilities = {
             'browserName': 'chrome',
             'version': '89.0',
-            # 'additionalNetworks': ['selenoid'],
             'applicationContainers': ['my-cool-app']
         }
-        if vnc:
-            capabilities['version'] += '_vnc'
-            capabilities['enableVNC'] = True
 
         with allure.step("Открываем браузер"):
             driver = Remote(
@@ -109,9 +111,8 @@ def browser_final(request, test_dir, ui_config_final, cookies_final):
 @pytest.fixture
 def main_page_fixture_final(browser_final, request, api_client_final):
     """
-    Логинимся и открываем главную страницу
+    Логинимся через куки и открываем главную страницу
     """
-
     cookies = request.getfixturevalue('cookies_final')
     for cookie in cookies:
         cookie_dict = {
@@ -126,5 +127,8 @@ def main_page_fixture_final(browser_final, request, api_client_final):
 
 @pytest.fixture(scope='function')
 def open_create_account_page(browser_final):
+    """
+    Открываем страницу регистрации пользователя
+    """
     browser_final.get(f"{SiteData.url}reg")
 

@@ -33,13 +33,11 @@ class TestApi(BaseAPITest, MysqlBase):
         assert self.find_in_db_by_username(user_middle_name['username']), 'Созданный пользователь не найден в БД'
 
     @pytest.mark.API_FINAL
-    def test_add_user_request_status(self):
+    def test_add_user_request_status(self, add_user_return_request):
         """
         Проверка статуса запроса добавления пользователя
         """
-        user = self.data_manager.user()
-        response = self.api_client_final.add_user(user)
-
+        user, response = add_user_return_request
         assert self.find_in_db_by_username(user['username']), 'Созданный пользователь не найден в БД'
         assert self.find_in_db_by_username(user['username'])[0].access == 1, "Значение access пользователя не равно 1"
         assert response.status_code == 201, 'Статус код должен быть 201'
@@ -60,7 +58,6 @@ class TestApi(BaseAPITest, MysqlBase):
         """
         response = self.api_client_final.add_user(data_w_email)
         assert response.status_code == 400, f'Сервер должен возвращать 400 ошибку, но сейчас вернул {response.status_code}'
-        assert not self.find_in_db_by_username(data_w_email['username']), 'Созданный пользователь найден в БД'
 
     @pytest.mark.API_FINAL
     @pytest.mark.parametrize('empty_field', [
@@ -133,7 +130,7 @@ class TestApi(BaseAPITest, MysqlBase):
         assert response.status_code == 401, f'Сервер должен возвращать 401 ошибку, но сейчас вернул {response.status_code}'
 
     @pytest.mark.API_FINAL
-    def test_auth_to_use_methods(self):
+    def test_auth_to_use_methods(self, add_user_return_request):
         """
         Логаут и попытка использовать методы требующие авторизации
         """
@@ -141,8 +138,7 @@ class TestApi(BaseAPITest, MysqlBase):
         login_test_client.post_user_auth(username=SiteData.main_user, password=SiteData.main_user_pass)
         login_test_client.logout()
 
-        user = self.data_manager.user()
-        self.api_client_final.add_user(user)
+        user, response = add_user_return_request
 
         response = login_test_client.delete_user(user['username'])
         assert response.status_code == 401, f'Сервер должен возвращать 401 ошибку, но сейчас вернул {response.status_code}'
@@ -157,26 +153,24 @@ class TestApi(BaseAPITest, MysqlBase):
         assert response.status_code == 401, f'Сервер должен возвращать 401 ошибку, но сейчас вернул {response.status_code}'
 
     @pytest.mark.API_FINAL
-    def test_delete_user(self):
+    def test_delete_user(self, add_user_return_request):
         """
         Удаление пользователя и проверка на его отсутствие в БД и статус кода
         """
-        user = self.data_manager.user()
-        self.api_client_final.add_user(user)
+        user = add_user_return_request[0]
         response = self.api_client_final.delete_user(user['username'])
         assert not self.find_in_db_by_username(user['username']), 'Созданный пользователь найден в БД'
-        assert response.status_code == 204, f'Сервер должен возвращать 204 ошибку, но сейчас вернул {response.status_code}'
+        assert response.status_code == 204, f'Сервер должен возвращать 204, но сейчас вернул {response.status_code}'
 
     @pytest.mark.API_FINAL
-    def test_change_user_password(self):
+    def test_change_user_password(self, add_user_return_request):
         """
         Изменение пароля пользователя, проверка на измение в БД, и статус кода
         """
-        user = self.data_manager.user()
-        self.api_client_final.add_user(user)
+        user = add_user_return_request[0]
         response = self.api_client_final.change_user_password(user['username'], 'new_password')
         assert self.find_in_db_by_username(user['username'])[0].password != user['password']
-        assert response.status_code == 200, f'Сервер должен возвращать 200 ошибку, но сейчас вернул {response.status_code}'
+        assert response.status_code == 200, f'Сервер должен возвращать 200, но сейчас вернул {response.status_code}'
 
     @pytest.mark.API_FINAL
     def test_change_user_password_to_existing(self):
@@ -189,15 +183,14 @@ class TestApi(BaseAPITest, MysqlBase):
         assert response.status_code == 400, f'Сервер должен возвращать 400 ошибку, но сейчас вернул {response.status_code}'
 
     @pytest.mark.API_FINAL
-    def test_block_user(self):
+    def test_block_user(self, add_user_return_request):
         """
         Блокирование пользователя:
         - сначала создание пользователя, проверка что значение active=1, наличие непустого значения start_active_time
         - блокировка пользователя, проверка статус кода, поле access=0 в БД
         - попытка залогиниться
         """
-        user = self.data_manager.user()
-        self.api_client_final.add_user(user)
+        user = add_user_return_request[0]
 
         login_test_client = ApiClientFinal(SiteData.url)
         login_test_client.post_user_auth(username=user['username'], password=user['password'])
@@ -267,24 +260,22 @@ class TestApi(BaseAPITest, MysqlBase):
         assert response.status_code == 404, f'Сервер должен возвращать 404 ошибку, но сейчас вернул {response.status_code}'
 
     @pytest.mark.API_FINAL
-    def test_user_email_uniqueness(self):
+    def test_user_email_uniqueness(self, add_user_return_request):
         """
         Проверка уникальности почты при создании пользователя
         """
-        user = self.data_manager.user()
-        self.api_client_final.add_user(user)
+        user = add_user_return_request[0]
         created_user_email = self.find_in_db_by_username(user['username'])[0].email
         user = self.data_manager.user(email=created_user_email)
         response = self.api_client_final.add_user(user)
         assert response.status_code == 400, f'Сервер должен возвращать 400 ошибку, но сейчас вернул {response.status_code}'
 
     @pytest.mark.API_FINAL
-    def test_username_uniqueness(self):
+    def test_username_uniqueness(self, add_user_return_request):
         """
         Проверка уникальности username при создании пользователя
         """
-        user = self.data_manager.user()
-        self.api_client_final.add_user(user)
+        user = add_user_return_request[0]
         created_username = self.find_in_db_by_username(user['username'])[0].username
         user = self.data_manager.user(username=created_username)
         response = self.api_client_final.add_user(user)

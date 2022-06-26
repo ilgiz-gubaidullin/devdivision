@@ -19,16 +19,22 @@ class TestMainPageUI(BaseUISuiteTest, MysqlBase):
                                                     ('wrong_username', SiteData.main_user_pass),
                                                     ('', '')))
     def test_negative_login(self, browser_final, username, password):
+        """
+        Негативный тест на логин, проверка на изменение url
+        """
         with allure.step("Процесс логина"):
             page = LoginPage(browser_final)
             page.login(username, password)
         with allure.step("Проверка логина пользователя"):
             assert browser_final.current_url != f"{SiteData.url}welcome", 'URL не должен меняться на успешный'
 
-    @pytest.mark.debug
+    @pytest.mark.UI_FINAL
     @pytest.mark.parametrize('username, password', ((SiteData.main_user, SiteData.main_user_pass),
                                                     (f"   {SiteData.main_user}   ", f"  {SiteData.main_user_pass}  ")))
     def test_login_success(self, browser_final, username, password):
+        """
+        Позитивный тест на логин, также же на обработку пробелов перед кредами, проверка на изменение url
+        """
         with allure.step("Процесс логина"):
             page = LoginPage(browser_final)
             page.login(username, password)
@@ -41,6 +47,9 @@ class TestMainPageUI(BaseUISuiteTest, MysqlBase):
                                               MainPageLocators.INTERNET_FUTURE_ICON,
                                               MainPageLocators.SMTP_ICON])
     def test_links_main_page_container(self, browser_final, main_page_fixture_final, link_locator):
+        """
+        Проверка на то что можно пройти по ссылкам иконок на главной странице, и что это ссылки находятся в списке предоставленных
+        """
         page = main_page_fixture_final
         page.open_main_page_link(link_locator)
         browser_final.switch_to.window(browser_final.window_handles[1])
@@ -55,6 +64,9 @@ class TestMainPageUI(BaseUISuiteTest, MysqlBase):
                                                              (MainPageLocators.NETWORK_HOVER, MainPageLocators.TCDUMP_EXAMPLES),
                                                              ))
     def test_links_main_page_header(self, browser_final, main_page_fixture_final, hover_element, link_locator):
+        """
+        Проверка на то что можно пройти по ссылкам иконок в хэдере, и что это ссылки находятся в списке предоставленных
+        """
         page = main_page_fixture_final
         element = page.move_cursor(hover_element)
         ActionChains(browser_final).move_to_element(element).perform()
@@ -64,11 +76,17 @@ class TestMainPageUI(BaseUISuiteTest, MysqlBase):
 
     @pytest.mark.UI_FINAL
     def test_footer_str_present(self, browser_final, main_page_fixture_final):
+        """
+        Проверка на то что в футере присутствует строка с фразой
+        """
         page = main_page_fixture_final
         page.check_footer_str_present()
 
     @pytest.mark.UI_FINAL
     def test_logout(self, browser_final, main_page_fixture_final):
+        """
+        Позитивный тест на логаут
+        """
         page = main_page_fixture_final
         page.make_logout()
         assert browser_final.current_url == f"{SiteData.url}login", 'URL не соответствует странице логина'
@@ -77,12 +95,18 @@ class TestMainPageUI(BaseUISuiteTest, MysqlBase):
     @pytest.mark.parametrize('icon_locator', [MainPageLocators.TM_ICON,
                                               MainPageLocators.HOME_ICON])
     def test_home_page_icons(self, browser_final, main_page_fixture_final, icon_locator):
+        """
+        Проверка на то что можно пройти по ссылкам иконок на панели, которые ведут на домашнюю страницу
+        """
         page = main_page_fixture_final
         page.open_main_page_link(icon_locator)
         assert browser_final.current_url == f"{SiteData.url}welcome/", 'URL не соответствует домашней странице'
 
     @pytest.mark.UI_FINAL
     def test_reg_form_open(self, browser_final):
+        """
+        Тест на открытие страницы регистрации
+        """
         page = LoginPage(browser_final)
         page.open_reg_form()
         assert browser_final.current_url == f"{SiteData.url}reg", 'URL не соответствует странице регистрации'
@@ -92,6 +116,9 @@ class TestMainPageUI(BaseUISuiteTest, MysqlBase):
         DataManager.user(middle_name=''),
         DataManager.user(middle_name='Hose')])
     def test_create_account(self, browser_final, user_middle_name, open_create_account_page):
+        """
+        Проверка на регистрацию пользователя, с и без middle_name
+        """
         page = RegPage(browser_final)
         page.create_account(user_middle_name)
         assert browser_final.current_url == f"{SiteData.url}welcome/", 'URL не соответствует домашней странице'
@@ -100,6 +127,9 @@ class TestMainPageUI(BaseUISuiteTest, MysqlBase):
 
     @pytest.mark.UI_FINAL
     def test_create_acc_without_checkbox(self, browser_final, open_create_account_page):
+        """
+        Проверка на регистрацию пользователя, без клика чекбокса
+        """
         page = RegPage(browser_final)
         user = DataManager.user()
         page.create_account(user, checkbox=False)
@@ -117,6 +147,9 @@ class TestMainPageUI(BaseUISuiteTest, MysqlBase):
         DataManager.user(email='123@123.#'),
         DataManager.user(email='@123')])
     def test_create_acc_w_invalid_email(self, user_data_w_email, browser_final, open_create_account_page):
+        """
+        Проверка на регистрацию пользователя, с невалидным email
+        """
         page = RegPage(browser_final)
         page.create_account(user_data_w_email)
         assert browser_final.current_url != f"{SiteData.url}welcome/", 'URL соответствует домашней странице'
@@ -129,6 +162,9 @@ class TestMainPageUI(BaseUISuiteTest, MysqlBase):
         DataManager.user(username=''),
         DataManager.user(password='')])
     def test_create_acc_w_empty_field(self, user_data_w_empty_field, browser_final, open_create_account_page):
+        """
+        Проверка на регистрацию пользователя, с пустым обязательным полем
+        """
         page = RegPage(browser_final)
         page.create_account(user_data_w_empty_field)
         assert browser_final.current_url != f"{SiteData.url}welcome/", 'URL соответствует домашней странице'
@@ -143,6 +179,9 @@ class TestMainPageUI(BaseUISuiteTest, MysqlBase):
         DataManager.user(email=f"123@{random_str(65)}"),
         DataManager.user(password=random_str(256))])
     def test_create_acc_w_exceeded_field(self, user_data_w_exceeded_field, browser_final, open_create_account_page):
+        """
+        Проверка на регистрацию пользователя, с полем превышающим максимальную длину, указанную в БД
+        """
         page = RegPage(browser_final)
         page.create_account(user_data_w_exceeded_field)
         assert browser_final.current_url != f"{SiteData.url}welcome/", 'URL соответствует домашней странице'
@@ -157,6 +196,9 @@ class TestMainPageUI(BaseUISuiteTest, MysqlBase):
         DataManager.user(email=f"{random_str(1)}@{random_str(1)}.qw"),
         DataManager.user(password=random_str(1))])
     def test_create_acc_w_min_symbol_field(self, user_data_w_min_symbol_field, browser_final, open_create_account_page):
+        """
+        Позитивная проверка на регистрацию пользователя, с минимальными значениями в поле
+        """
         page = RegPage(browser_final)
         page.create_account(user_data_w_min_symbol_field)
         assert browser_final.current_url == f"{SiteData.url}welcome/", 'URL не соответствует домашней странице'
@@ -171,6 +213,9 @@ class TestMainPageUI(BaseUISuiteTest, MysqlBase):
         DataManager.user(email=f"  {random_str(10)}@1.qw"),
         DataManager.user(password=f"   {random_str(10)}")])
     def test_create_acc_w_space_in_field(self, user_data_w_space_in_field, browser_final, open_create_account_page):
+        """
+        Проверка на регистрацию пользователя, с пробелами в полях
+        """
         page = RegPage(browser_final)
         page.create_account(user_data_w_space_in_field)
         assert browser_final.current_url == f"{SiteData.url}welcome/", 'URL не соответствует домашней странице'
@@ -180,8 +225,10 @@ class TestMainPageUI(BaseUISuiteTest, MysqlBase):
     @pytest.mark.parametrize('user_data', [
         DataManager.user(username='main_user'),
         DataManager.user(email='qwe@qwe.qwe')])
-    def test_create_acc_email_uniqueness(self, user_data, browser_final, open_create_account_page):
+    def test_create_acc_username_email_uniqueness(self, user_data, browser_final, open_create_account_page):
+        """
+        Проверка на регистрацию пользователя, с неуникальными значениями email, username
+        """
         page = RegPage(browser_final)
         page.create_account(user_data)
         assert browser_final.current_url != f"{SiteData.url}welcome/", 'URL соответствует домашней странице'
-

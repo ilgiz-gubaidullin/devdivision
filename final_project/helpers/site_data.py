@@ -15,6 +15,8 @@ class SiteData:
     main_user = "main_user"
     main_user_pass = "password"
 
+    test_cases = "https://docs.google.com/spreadsheets/d/1dZTGr1vcxKbGGx-0hitCPwRqLdQXRqxZPMwCmAewVMI/edit#gid=0"
+
 
 class MainPageLinks:
     container_links = [

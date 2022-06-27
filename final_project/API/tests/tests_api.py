@@ -6,11 +6,14 @@ from final_project.helpers.utility_functions import random_str
 from final_project.helpers.site_data import SiteData
 from final_project.mysql_db.db_base import MysqlBase
 from final_project.API.api_client import ApiClientFinal
+import allure
 
 
 fake = Faker()
+TEST_CASES_LINK = SiteData.test_cases
 
 
+@allure.testcase(TEST_CASES_LINK, 'Test cases link')
 class TestApi(BaseAPITest, MysqlBase):
 
     @pytest.mark.API_FINAL

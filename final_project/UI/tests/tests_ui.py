@@ -11,6 +11,10 @@ from final_project.mysql_db.db_base import MysqlBase
 from final_project.helpers.utility_functions import random_str
 
 
+TEST_CASES_LINK = SiteData.test_cases
+
+
+@allure.testcase(TEST_CASES_LINK, 'Test cases link')
 class TestMainPageUI(BaseUISuiteTest, MysqlBase):
 
     @pytest.mark.UI_FINAL

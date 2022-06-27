@@ -68,8 +68,8 @@ services:
         build: .
         volumes:
             - ./:/main
-        command: ["python", "-m", "pytest", "/main/final_project/API/tests/tests_api.py", "-m", "API_FINAL"]
-#        command: ["python", "-m", "pytest", "/main/final_project/UI/tests/tests_ui.py", "-m", "UI_FINAL", "--selenoid"]
+        command: ["python", "-m", "pytest", "/main/final_project/API/tests/tests_api.py", "-m", "API_FINAL",
+                  "/main/final_project/UI/tests/tests_ui.py", "-m", "UI_FINAL", "--selenoid"]
         depends_on:
             - mysql_db
             - my_app

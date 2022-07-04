@@ -1,0 +1,76 @@
+networks:
+  selenoid:
+    external:
+        name: selenoid
+
+services:
+    mysql_db:
+        build:
+            context: ./final_project/mysql_db/Dockerfile.mysql_db
+        container_name: mysql_db_container
+        networks:
+            selenoid: null
+        environment:
+            MYSQL_ROOT_PASSWORD: Root123
+        image: "mysql_db"
+        healthcheck:
+            test: ["CMD", "mysqladmin", "-uroot", "-pRoot123", "ping", "-h", "mysql_db"]
+            timeout: 1s
+            retries: 5
+        ports:
+            - "3307:3306"
+
+    vk_api:
+        build:
+            context: ./final_project/mock/Dockerfile.mock
+        networks:
+            selenoid: null
+        image: "vk_api"
+        ports:
+            - "8005:8005"
+
+    my_app:
+        container_name: my-cool-app
+        networks:
+            selenoid: null
+        image: "myapp"
+        depends_on:
+            mysql_db:
+                condition:
+                    service_healthy
+            vk_api:
+                condition:
+                    service_started
+        ports:
+            - "8082:8082"
+        volumes:
+            - "./final_project/config:/myapp/config"
+        command:
+            ["/app/myapp", "--config=/myapp/config/app.config"]
+
+    selenoid:
+        container_name: selenoid_container
+        networks:
+            selenoid: null
+        image: aerokube/selenoid:1.10.7
+        volumes:
+            - "./final_project/config_selenoid:/etc/selenoid"
+            - "/var/run/docker.sock:/var/run/docker.sock"
+        command: ["-conf", "/etc/selenoid/browsers.json", "-video-output-dir", "/opt/selenoid/video", "-log-output-dir", "/opt/selenoid/logs", "-container-network", "selenoid" ]
+        healthcheck:
+            test: [ "CMD", "curl", "http://my-cool-app:4444/ping" ]
+        ports:
+            - "4444:4444"
+
+    tests:
+        networks:
+            selenoid: null
+        build: .
+        volumes:
+            - ./:/main
+        command: ["python", "-m", "pytest", "/main/final_project/API/tests/tests_api.py", "-m", "API_FINAL",
+                  "/main/final_project/UI/tests/tests_ui.py", "-m", "UI_FINAL", "--selenoid"]
+        depends_on:
+            - mysql_db
+            - my_app
+            - selenoid
